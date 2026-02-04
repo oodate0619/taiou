@@ -5,28 +5,70 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>トラブル対応文書の“安全な下書き体験”（デモ）</title>
   <style>
-    body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif; margin: 0; background:#f7f7f7; color:#111; }
+    body {
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,
+        "Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;
+      margin: 0;
+      background:#f7f7f7;
+      color:#111;
+      font-size: 15px;
+    }
     .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
-    .card { background:#fff; border-radius: 14px; padding: 18px; box-shadow: 0 6px 18px rgba(0,0,0,.06); margin-bottom: 14px; }
+    .card {
+      background:#fff; border-radius: 14px; padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      margin-bottom: 14px;
+    }
     h1 { font-size: 20px; margin: 0 0 10px; }
     h2 { font-size: 14px; margin: 18px 0 8px; }
     .muted { color:#555; font-size: 12px; line-height: 1.6; }
     .row { display:flex; gap:12px; flex-wrap: wrap; }
     .col { flex:1; min-width: 290px; }
     label { display:block; font-size: 12px; margin: 10px 0 6px; color:#333; }
-    textarea { width:100%; min-height: 140px; border:1px solid #ddd; border-radius: 10px; padding: 10px; font-size: 14px; line-height: 1.6; resize: vertical; }
-    .btns { display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px; }
+    textarea {
+      width:100%; min-height: 140px; border:1px solid #ddd; border-radius: 10px;
+      padding: 10px; font-size: 14px; line-height: 1.6; resize: vertical;
+    }
+    .btns { display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px; align-items:center; }
     button { border:0; border-radius: 10px; padding: 10px 12px; font-size: 14px; cursor:pointer; }
     .primary { background:#111; color:#fff; }
     .ghost { background:#eee; color:#111; }
     .warn { background:#fff5f5; border:1px solid #ffd0d0; }
-    .pill { display:inline-block; font-size: 11px; padding: 3px 8px; border-radius: 999px; background:#f0f0f0; margin-right: 6px; }
-    pre { white-space: pre-wrap; word-break: break-word; background:#0b0b0b; color:#eaeaea; padding: 12px; border-radius: 12px; margin: 0; font-size: 13px; line-height: 1.7; }
-    .footerQ { font-size: 13px; padding: 10px 12px; border-radius: 12px; background:#f2f7ff; border:1px solid #dbe9ff; }
+    .pill {
+      display:inline-block; font-size: 11px; padding: 3px 8px;
+      border-radius: 999px; background:#f0f0f0; margin-right: 6px;
+    }
+    pre {
+      white-space: pre-wrap; word-break: break-word;
+      background:#0b0b0b; color:#eaeaea;
+      padding: 12px; border-radius: 12px; margin: 0;
+      font-size: 13px; line-height: 1.7;
+    }
+    .footerQ {
+      font-size: 13px; padding: 10px 12px; border-radius: 12px;
+      background:#f2f7ff; border:1px solid #dbe9ff;
+      line-height: 1.6;
+    }
     .small { font-size: 11px; color:#666; }
     .hr { height:1px; background:#eee; margin: 12px 0; }
+
+    /* ========= スマホ表示の可読性アップ（最小調整） ========= */
+    @media (max-width: 768px) {
+      body { font-size: 16px; }
+      .wrap { padding: 14px; }
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      .muted { font-size: 13px; line-height: 1.7; }
+      label { font-size: 13px; }
+      textarea { font-size: 16px; line-height: 1.7; }
+      pre { font-size: 14px; line-height: 1.8; }
+      .footerQ { font-size: 14px; line-height: 1.7; }
+      button { font-size: 15px; padding: 11px 12px; }
+      .pill { font-size: 12px; }
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card">
@@ -102,25 +144,28 @@
     </div>
   </div>
 
-<script>
-(() => {
-  const input = document.getElementById('input');
-  const output = document.getElementById('output');
-  const recStatus = document.getElementById('recStatus');
-  const startRec = document.getElementById('startRec');
-  const stopRec = document.getElementById('stopRec');
+  <script>
+  (() => {
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const recStatus = document.getElementById('recStatus');
+    const startRec = document.getElementById('startRec');
+    const stopRec = document.getElementById('stopRec');
 
-  // --- 擬似生成（商談用デモ） ---
-  function pseudoGenerate(text) {
-    const now = new Date();
-    const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+    // --- 擬似生成（商談用デモ） ---
+    function pseudoGenerate(text) {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
 
-    // 最低限の情報が薄い時は、事務トーンで「確認する」文面に寄せて事故回避
-    const thin = (text || "").trim().length < 40;
+      const cleaned = (text || "").trim();
+      const thin = cleaned.length < 40;
 
-    const subject = "【お詫び】対応の遅れに関するご連絡";
-    if (thin) {
-      return `${subject}
+      const subject = "【お詫び】対応の遅れに関するご連絡";
+
+      if (thin) {
+        return `${subject}
 
 いつもお世話になっております。
 株式会社△△の□□です。
@@ -130,10 +175,17 @@
 
 確認でき次第、進捗と見込み（いつまでに何ができるか）をあらためてご連絡いたします。
 何卒よろしくお願いいたします。`;
-    }
+      }
 
-    // 事実→お詫び→次の連絡（固定）
-    return `${subject}
+      const bullets = cleaned
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .slice(0, 6)
+        .map(s => "・" + s)
+        .join("\n");
+
+      return `${subject}
 
 いつもお世話になっております。
 株式会社△△の□□です。
@@ -141,88 +193,88 @@
 このたびは、下記の件につきまして、予定通りの対応ができずご迷惑をおかけし、誠に申し訳ございません。
 
 【状況（要点）】
-${text.split(/\n+/).slice(0,6).map(s => "・" + s.trim()).join("\n")}
+${bullets}
 
 現在、状況を確認のうえ対応を進めております。
 本日（${y}/${m}/${d}）中に、進捗と今後の見込みをあらためてご連絡いたします。
 
 ご迷惑をおかけしておりますことをお詫び申し上げます。`;
-  }
-
-  document.getElementById('gen').addEventListener('click', () => {
-    output.textContent = pseudoGenerate(input.value);
-  });
-
-  document.getElementById('clear').addEventListener('click', () => {
-    input.value = "";
-    output.textContent = "ここに出力されます。";
-  });
-
-  document.getElementById('copy').addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(output.textContent);
-      alert("コピーしました。");
-    } catch (e) {
-      alert("コピーに失敗しました（ブラウザ設定をご確認ください）。");
     }
-  });
 
-  // --- 音声入力（Web Speech API） ---
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let recognition = null;
+    document.getElementById('gen').addEventListener('click', () => {
+      output.textContent = pseudoGenerate(input.value);
+    });
 
-  if (!SpeechRecognition) {
-    startRec.disabled = true;
-    recStatus.textContent = "（このブラウザは音声入力に非対応です）";
-  } else {
-    recognition = new SpeechRecognition();
-    recognition.lang = 'ja-JP';
-    recognition.interimResults = true;
-    recognition.continuous = true;
+    document.getElementById('clear').addEventListener('click', () => {
+      input.value = "";
+      output.textContent = "ここに出力されます。";
+    });
 
-    let finalText = "";
-
-    recognition.onstart = () => {
-      recStatus.textContent = "録音中…（停止を押すまで続きます）";
-      startRec.disabled = true;
-      stopRec.disabled = false;
-    };
-
-    recognition.onend = () => {
-      recStatus.textContent = "停止しました。";
-      startRec.disabled = false;
-      stopRec.disabled = true;
-    };
-
-    recognition.onerror = (e) => {
-      recStatus.textContent = "エラー: " + e.error;
-      startRec.disabled = false;
-      stopRec.disabled = true;
-    };
-
-    recognition.onresult = (event) => {
-      let interim = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalText += transcript + "\n";
-        } else {
-          interim += transcript;
-        }
+    document.getElementById('copy').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(output.textContent);
+        alert("コピーしました。");
+      } catch (e) {
+        alert("コピーに失敗しました（ブラウザ設定をご確認ください）。");
       }
-      input.value = (finalText + interim).trim();
-    };
-
-    startRec.addEventListener('click', () => {
-      finalText = input.value ? (input.value.trim() + "\n") : "";
-      recognition.start();
     });
 
-    stopRec.addEventListener('click', () => {
-      recognition.stop();
-    });
-  }
-})();
-</script>
+    // --- 音声入力（Web Speech API） ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    if (!SpeechRecognition) {
+      startRec.disabled = true;
+      recStatus.textContent = "（このブラウザは音声入力に非対応です）";
+    } else {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'ja-JP';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+
+      let finalText = "";
+
+      recognition.onstart = () => {
+        recStatus.textContent = "録音中…（停止を押すまで続きます）";
+        startRec.disabled = true;
+        stopRec.disabled = false;
+      };
+
+      recognition.onend = () => {
+        recStatus.textContent = "停止しました。";
+        startRec.disabled = false;
+        stopRec.disabled = true;
+      };
+
+      recognition.onerror = (e) => {
+        recStatus.textContent = "エラー: " + e.error;
+        startRec.disabled = false;
+        stopRec.disabled = true;
+      };
+
+      recognition.onresult = (event) => {
+        let interim = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalText += transcript + "\n";
+          } else {
+            interim += transcript;
+          }
+        }
+        input.value = (finalText + interim).trim();
+      };
+
+      startRec.addEventListener('click', () => {
+        finalText = input.value ? (input.value.trim() + "\n") : "";
+        recognition.start();
+      });
+
+      stopRec.addEventListener('click', () => {
+        recognition.stop();
+      });
+    }
+  })();
+  </script>
 </body>
 </html>
